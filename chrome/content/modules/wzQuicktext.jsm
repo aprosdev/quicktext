@@ -4,6 +4,8 @@ var { wzQuicktextScript } = ChromeUtils.import("chrome://quicktext/content/modul
 var { OS } = ChromeUtils.import("resource://gre/modules/osfile.jsm");
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
+Services.scriptloader.loadSubScript("chrome://quicktext/content/js-yaml.min.js");
+
 var EXPORTED_SYMBOLS = ["gQuicktext"];
 
 const kDebug        = true;
@@ -163,27 +165,27 @@ var gQuicktext = {
     if (!this.mQuicktextDir.exists())
       this.mQuicktextDir.create(Components.interfaces.nsIFile.DIRECTORY_TYPE, 0o755);
 
-    if (!this.mQuicktextDir.isDirectory())
-    {
-      // Must warn the user that the quicktext dir don't exists and couldn't be created
-    }
-    else
-    {
-      var quicktextFile = this.mQuicktextDir.clone();
-      quicktextFile.append("templates.xml");
+    // if (!this.mQuicktextDir.isDirectory())
+    // {
+    //   // Must warn the user that the quicktext dir don't exists and couldn't be created
+    // }
+    // else
+    // {
+    //   var quicktextFile = this.mQuicktextDir.clone();
+    //   quicktextFile.append("templates.xml");
 
-      // Checks if the template-file exists and import that it if it exists
-      if (quicktextFile.exists())
-      {
-        this.importFromFile(quicktextFile, 0, true, false);
-      }
+    //   // Checks if the template-file exists and import that it if it exists
+    //   if (quicktextFile.exists())
+    //   {
+    //     this.importFromFile(quicktextFile, 0, true, false);
+    //   }
 
-      // If the script-file exists import it
-      var scriptFile = this.mQuicktextDir.clone();
-      scriptFile.append("scripts.xml");
-      if (scriptFile.exists())
-        this.importFromFile(scriptFile, 0, true, false);
-    }
+    //   // If the script-file exists import it
+    //   var scriptFile = this.mQuicktextDir.clone();
+    //   scriptFile.append("scripts.xml");
+    //   if (scriptFile.exists())
+    //     this.importFromFile(scriptFile, 0, true, false);
+    // }
 
     // Get prefs
     this.mViewToolbar = await this.notifyTools.notifyBackground({command:"getPref", pref: "toolbar"});
@@ -200,7 +202,7 @@ var gQuicktext = {
     {
       this.mShortcutModifier = "alt";
     }
-
+    console.log("mDefaultImport in jsm ", this.mDefaultImport)
     if (this.mDefaultImport)
     {
       var defaultImport = this.mDefaultImport.split(";");
@@ -843,6 +845,10 @@ var gQuicktext = {
 ,
   parseImport: function(aData, aType, aBefore, aEditingMode)
   {
+    
+    var json=JSON.parse(aData)
+    console.log("json ", json)
+
     var parser = new DOMParser();
     var dom = parser.parseFromString(aData, "text/xml");
 
@@ -952,28 +958,7 @@ var gQuicktext = {
         return;
     }
 
-    if (scripts.length > 0)
-    {
-      if (aBefore)
-      {
-        scripts.reverse();
-        if (!aEditingMode)
-          for (var i = 0; i < scripts.length; i++)
-            this.mScripts.unshift(scripts[i]);
-
-        for (var i = 0; i < scripts.length; i++)
-          this.mEditingScripts.unshift(scripts[i]);
-      }
-      else
-      {
-        if (!aEditingMode)
-          for (var i = 0; i < scripts.length; i++)
-            this.mScripts.push(scripts[i]);
-
-        for (var i = 0; i < scripts.length; i++)
-          this.mEditingScripts.push(scripts[i]);
-      }
-    }
+   
 
     if (group.length > 0 && texts.length > 0)
     {
@@ -1008,6 +993,8 @@ var gQuicktext = {
           this.mEditingTexts.push(texts[i]);
       }
     }
+    console.log("mGroup in Quicktext", this.mGroup)
+    console.log("mText in Quicktext", this.mTexts)
   }
 ,
   getTagValue: function(aElem, aTag)

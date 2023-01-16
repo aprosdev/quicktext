@@ -52,9 +52,9 @@ var quicktext = {
       }
 
       // window.resizeTo(gQuicktext.getSettingsWindowSize(0), gQuicktext.getSettingsWindowSize(1));
-      document.getElementById('tabbox-main').selectedIndex = 1;
+      // document.getElementById('tabbox-main').selectedIndex = 1;
 
-      document.getElementById('text-keyword').addEventListener("keypress", function(e) { quicktext.noSpaceForKeyword(e); }, false);
+      // document.getElementById('text-keyword').addEventListener("keypress", function(e) { quicktext.noSpaceForKeyword(e); }, false);
 
       this.disableSave();
       document.documentElement.getButton("extra1").addEventListener("command", function(e) { quicktext.save(); }, false);
@@ -70,11 +70,12 @@ var quicktext = {
       states[i] = (this.mCollapseState[i]) ? "1" : "";
     gQuicktext.collapseState = states.join(";");
 
-    document.getElementById('text-keyword').removeEventListener("keypress", function(e) { quicktext.noSpaceForKeyword(e); }, false);
+    // document.getElementById('text-keyword').removeEventListener("keypress", function(e) { quicktext.noSpaceForKeyword(e); }, false);
   }
 ,
   close: function(aClose)
   {
+    console.log(" click closed in setting.js")
     this.saveText();
     this.saveScript();
 
@@ -116,6 +117,7 @@ var quicktext = {
 ,
   save: function()
   {
+    console.log("click saved");
     this.saveText();
     this.saveScript();
 
@@ -132,6 +134,7 @@ var quicktext = {
     if (document.getElementById("checkbox-collapseGroup"))
       gQuicktext.collapseGroup = document.getElementById("checkbox-collapseGroup").checked;
 
+    console.log("gQuickText.defaultImport ", gQuicktext.defaultImport);
     gQuicktext.saveSettings();
 
     this.mChangesMade = false;
@@ -483,6 +486,9 @@ var quicktext = {
     }
     if (document.getElementById("text-defaultImport"))
       document.getElementById("text-defaultImport").value = gQuicktext.defaultImport;
+    
+    console.log("gQuicktext.defaultImport " , gQuicktext.defaultImport)
+
     if (document.getElementById("select-keywordKey"))
       document.getElementById("select-keywordKey").value = gQuicktext.keywordKey;    
 
@@ -490,21 +496,21 @@ var quicktext = {
     this.updateVariableGUI();
 
     // Update Script list
-    this.updateScriptGUI();
+    // this.updateScriptGUI();
 
     // Update the tree
-    this.buildTreeGUI();
+    // this.buildTreeGUI();
 
     // Update the remove and add buttons
-    this.updateButtonStates();
+    // this.updateButtonStates();
   }
 ,
   updateVariableGUI: function()
   {
     // Set all other text in the variablemenu
-    var topParent = document.getElementById('quicktext-other-texts');
-    for (var i = topParent.childNodes.length-1; i >= 0 ; i--)
-      topParent.removeChild(topParent.childNodes[i]);
+    // var topParent = document.getElementById('quicktext-other-texts');
+    // for (var i = topParent.childNodes.length-1; i >= 0 ; i--)
+    //   topParent.removeChild(topParent.childNodes[i]);
 
     var groupLength = gQuicktext.getGroupLength(true);
     if (groupLength > 0)
@@ -536,31 +542,31 @@ var quicktext = {
         }
       }
     }
-    else
-      topParent.setAttribute('hidden', true);
+    // else
+    //   topParent.setAttribute('hidden', true);
 
-    var topParent = document.getElementById('variables-scripts');
-    for (var i = topParent.childNodes.length-1; i >= 0 ; i--)
-      topParent.removeChild(topParent.childNodes[i]);
+    // var topParent = document.getElementById('variables-scripts');
+    // for (var i = topParent.childNodes.length-1; i >= 0 ; i--)
+    //   topParent.removeChild(topParent.childNodes[i]);
 
-    var scriptLength = gQuicktext.getScriptLength(true);
-    if (scriptLength > 0)
-    {
-      topParent.removeAttribute('hidden');
-      parent = document.createXULElement("menupopup");
-      parent = topParent.appendChild(parent);
+    // var scriptLength = gQuicktext.getScriptLength(true);
+    // if (scriptLength > 0)
+    // {
+    //   topParent.removeAttribute('hidden');
+    //   parent = document.createXULElement("menupopup");
+    //   parent = topParent.appendChild(parent);
 
-      for (var i = 0; i < scriptLength; i++)
-      {
-        var script = gQuicktext.getScript(i, true);
-        var textElem = document.createXULElement("menuitem");
-        textElem.setAttribute('label', script.name);
-        textElem.addEventListener("command", function() { quicktext.insertVariable("SCRIPT="+ this.getAttribute("label")); });
-        textElem = parent.appendChild(textElem);
-      }
-    }
-    else
-      topParent.setAttribute('hidden', true);
+    //   for (var i = 0; i < scriptLength; i++)
+    //   {
+    //     var script = gQuicktext.getScript(i, true);
+    //     var textElem = document.createXULElement("menuitem");
+    //     textElem.setAttribute('label', script.name);
+    //     textElem.addEventListener("command", function() { quicktext.insertVariable("SCRIPT="+ this.getAttribute("label")); });
+    //     textElem = parent.appendChild(textElem);
+    //   }
+    // }
+    // else
+    //   topParent.setAttribute('hidden', true);
   }
 ,
   disableShortcuts: function(aShortcut)
@@ -587,14 +593,14 @@ var quicktext = {
   disableSave: function()
   {
     document.documentElement.getButton("extra1").setAttribute("disabled", true);
-    document.getElementById("toolbar-save").setAttribute("disabled", true);
+    // document.getElementById("toolbar-save").setAttribute("disabled", true);
   }
 ,
 
   enableSave: function()
   {
     document.documentElement.getButton("extra1").removeAttribute("disabled");
-    document.getElementById("toolbar-save").removeAttribute("disabled");
+    // document.getElementById("toolbar-save").removeAttribute("disabled");
   }
 ,
   /*

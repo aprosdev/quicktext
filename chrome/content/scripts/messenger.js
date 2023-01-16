@@ -1,5 +1,6 @@
 // Import any needed modules.
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+Services.scriptloader.loadSubScript("chrome://quicktext/content/js-yaml.min.js", window, "UTF-8");
 var { gQuicktext } = ChromeUtils.import("chrome://quicktext/content/modules/wzQuicktext.jsm");
 
 // Load an additional JavaScript file.
