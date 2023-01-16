@@ -847,118 +847,181 @@ var gQuicktext = {
   {
     
     var json=JSON.parse(aData)
-    console.log("json ", json)
-
-    var parser = new DOMParser();
-    var dom = parser.parseFromString(aData, "text/xml");
-
-    var version = dom.documentElement.getAttribute("version");
-
     var group = [];
     var texts = [];
-    var scripts = [];
 
-    switch (version)
-    {
-      case "2":
-        var filetype = this.getTagValue(dom.documentElement, "filetype");
-        switch (filetype)
-        {
-          case "scripts":
-            var elems = dom.documentElement.getElementsByTagName("script");
-            for (var i = 0; i < elems.length; i++)
-            {
-              var tmp = new wzQuicktextScript();
-              tmp.name = this.getTagValue(elems[i], "name");
-              tmp.script = this.getTagValue(elems[i], "body");
-              tmp.type = aType;
+     var elems = json["menus"];
+     var groups = Object.values(elems)   // get the group value object array
+     for(var i = 0; i< groups.length; i++)
+     {
+        var eachGroup = groups[i]
+        var title = eachGroup.title
+        var fi_tmp = new wzQuicktextGroup();
+        var en_tmp = new wzQuicktextGroup();
 
-              scripts.push(tmp);
-            }
-            break;
-          case "":
-          case "templates":
-            var elems = dom.documentElement.getElementsByTagName("menu");
-            for (var i = 0; i < elems.length; i++)
-            {
-              var tmp = new wzQuicktextGroup();
-              tmp.name = this.getTagValue(elems[i], "title");
-              tmp.type = aType;
-    
-              group.push(tmp);
-              var subTexts = [];
-              var textsNodes = elems[i].getElementsByTagName("texts");
-              if (textsNodes.length > 0)
-              {
-                var subElems = textsNodes[0].getElementsByTagName("text");
-                for (var j = 0; j < subElems.length; j++)
-                {
-                  var tmp = new wzQuicktextTemplate();
-                  tmp.name = this.getTagValue(subElems[j], "name");
-                  tmp.text = this.getTagValue(subElems[j], "body");
-                  tmp.shortcut = subElems[j].getAttribute("shortcut");
-                  tmp.type = subElems[j].getAttribute("type");
-                  tmp.keyword = this.getTagValue(subElems[j], "keyword");
-                  tmp.subject = this.getTagValue(subElems[j], "subject");
-                  tmp.attachments = this.getTagValue(subElems[j], "attachments");
-
-                  // There seems to be no use to read dynamically gathered header informations from the last use of a template from the file
-
-                  // var headersTag = subElems[j].getElementsByTagName("headers");
-                  // if (headersTag.length > 0)
-                  // {
-                  //   var headers = headersTag[0].getElementsByTagName("header");
-                  //   for (var k = 0; k < headers.length; k++)
-                  //     tmp.addHeader(this.getTagValue(headers[k], "type"), this.getTagValue(headers[k], "value"));
-                  // }
-
-                  subTexts.push(tmp);
-                }
-              }
-              texts.push(subTexts);
-            }            
-            break;
-          default:
-            // Alert the user that the importer don't understand the filetype
-            break;
+        if(typeof title === 'string' || title instanceof String){
+           // it's a string
+           fi_tmp.name = title
+           fi_tmp.type = aType
+           en_tmp.name = title
+           en_tmp.type = aType
+        }                
+        else{             
+            //  it's an object
+            fi_tmp.name = title['fi']
+            fi_tmp.type = aType
+            en_tmp.name = title['en']
+            en_tmp.type = aType
         }
-        
-        break;
-      case null:
-        // When the version-number not is set it is version 1.
+        group.push({
+          "fi": fi_tmp,
+          'en': en_tmp 
+        });
 
-        var elems = dom.documentElement.getElementsByTagName("menu");
-        for (var i = 0; i < elems.length; i++)
-        {
-          var tmp = new wzQuicktextGroup();
-          tmp.name = elems[i].getAttribute("title");
-          tmp.type = aType;
-
-          group.push(tmp);
-
-          var subTexts = [];
-          var subElems = elems[i].getElementsByTagName("text");
-          for (var j = 0; j < subElems.length; j++)
-          {
-            var tmp = new wzQuicktextTemplate();
-            tmp.name = subElems[j].getAttribute("title");
-            tmp.text = subElems[j].firstChild.nodeValue;
-            tmp.shortcut = subElems[j].getAttribute("shortcut");
-            tmp.type = subElems[j].getAttribute("type");
-            tmp.keyword = subElems[j].getAttribute("keyword");
-            tmp.subject = subElems[j].getAttribute("subject");
-
-            subTexts.push(tmp);
-          }
-          texts.push(subTexts);
-        }
-        break;
-      default:
-        // Alert the user that there version of Quicktext can't import the file, need to upgrade
-        return;
-    }
-
+        var subTexts = []
+        var templateNodes = eachGroup.templates
    
+        var templates = Object.values(templateNodes)
+       
+        for(var j = 0; j < templates.length; j++){
+           var fi_tmp = new wzQuicktextTemplate();
+           var en_tmp = new wzQuicktextTemplate();
+           if(templates[j] ==  null){
+              // it's a separator template
+              fi_tmp.name = '--------------'
+              fi_tmp.text = '--------------'
+              fi_tmp.shortcut =  ''
+              fi_tmp.type = 'separator'
+              fi_tmp.keyword =  ''
+              fi_tmp.subject =  ''
+              fi_tmp.attachments = ''
+              fi_tmp.parent = ''
+
+              en_tmp.name = '--------------'
+              en_tmp.text = '--------------'
+              en_tmp.shortcut = ''
+              en_tmp.type = 'separator'
+              en_tmp.keyword =  ''
+              en_tmp.subject =  ''
+              en_tmp.attachments = ''
+              en_tmp.parent = ''
+
+              subTexts.push({
+                'fi' : fi_tmp,
+                'en' : en_tmp
+              });
+           }
+           else{
+              var type = templates[j].type
+              if (type === 'group'){
+                  var title = templates[j].title
+                  if(typeof title === 'string' || title instanceof String){
+                    // it's a string
+                    fi_tmp.name = title
+                    en_tmp.name = title
+                  
+                  }else{
+                    fi_tmp.name = title.fi
+                    en_tmp.name = title.en
+                  } 
+                  fi_tmp.text = ''
+                  fi_tmp.shortcut = ''
+                  fi_tmp.type = type
+                  fi_tmp.keyword = ''
+                  fi_tmp.subject =  ''
+                  fi_tmp.attachments = ''
+                  fi_tmp.parent = ''
+
+                  en_tmp.text = ''
+                  en_tmp.shortcut = ''
+                  en_tmp.type = type
+                  en_tmp.keyword = ''
+                  en_tmp.subject =  ''
+                  en_tmp.attachments = ''
+                  en_tmp.parent = ''
+
+                  subTexts.push({
+                    'fi' : fi_tmp,
+                    'en' : en_tmp
+                  });
+
+                  var subTemplatesArray = templates[j].templates;
+                  subTemplatesArray = Object.values(subTemplatesArray);
+
+                  for(var k = 0; k < subTemplatesArray.length; k++ )
+                  {
+                    var sub_fi_tmp = new wzQuicktextTemplate();
+                    var sub_en_tmp = new wzQuicktextTemplate();
+                    if(typeof subTemplatesArray[k].title === 'string' | subTemplatesArray[k].title instanceof String){
+                      sub_fi_tmp.name = subTemplatesArray[k].title
+                      sub_en_tmp.name = subTemplatesArray[k].title
+                    }
+                    else{
+                      sub_fi_tmp.name = subTemplatesArray[k].title.fi
+                      sub_en_tmp.name = subTemplatesArray[k].title.en
+                    }
+
+                    if(typeof subTemplatesArray[k].body === 'string' | subTemplatesArray[k].body instanceof String){
+                      sub_fi_tmp.text = subTemplatesArray[k].body
+                      sub_en_tmp.text = subTemplatesArray[k].body
+                    }
+                    else{
+                      sub_fi_tmp.text = subTemplatesArray[k].body.fi
+                      sub_en_tmp.text = subTemplatesArray[k].body.en
+                    }
+
+                    sub_fi_tmp.shortcut = 'shortcut' in subTemplatesArray[k] ? subTemplatesArray[k].shortcut.fi : ''
+                    sub_fi_tmp.type = 'type' in subTemplatesArray[k] ? subTemplatesArray[k].type : ''
+                    sub_fi_tmp.keyword = 'keyword' in subTemplatesArray[k] ? subTemplatesArray[k].keyword.fi : ''
+                    sub_fi_tmp.subject = 'subject' in subTemplatesArray[k] ? subTemplatesArray[k].subject.fi : ''
+                    sub_fi_tmp.attachments = 'attachments' in subTemplatesArray[k] ? subTemplatesArray[k].attachments.fi : ''
+                    sub_fi_tmp.parent = fi_tmp.name
+
+                    sub_en_tmp.shortcut = 'shortcut' in subTemplatesArray[k] ? subTemplatesArray[k].shortcut.en : ''
+                    sub_en_tmp.type = 'type' in subTemplatesArray[k] ? subTemplatesArray[k].type : ''
+                    sub_en_tmp.keyword = 'keyword' in subTemplatesArray[k] ? subTemplatesArray[k].keyword.en : ''
+                    sub_en_tmp.subject = 'subject' in subTemplatesArray[k] ? subTemplatesArray[k].subject.en : ''
+                    sub_en_tmp.attachments = 'attachments' in subTemplatesArray[k] ? subTemplatesArray[k].attachments.en : ''
+                    sub_en_tmp.parent = en_tmp.name
+
+                    subTexts.push({
+                      'fi' : sub_fi_tmp,
+                      'en' : sub_en_tmp
+                    });
+                  }
+
+              }else{
+                  fi_tmp.name = templates[j].title.fi
+                  fi_tmp.text = templates[j].body.fi
+                  fi_tmp.shortcut = 'shortcut' in templates[j] ? templates[j].shortcut.fi : ''
+                  fi_tmp.type = templates[j].type
+                  fi_tmp.keyword = 'keyword' in templates[j] ? templates[j].keyword.fi : ''
+                  fi_tmp.subject = 'subject' in templates[j] ? templates[j].subject.fi : ''
+                  fi_tmp.attachments = 'attachments' in templates[j] ? templates[j].attachments.fi : ''
+                  fi_tmp.parent = ''
+
+                  en_tmp.name = templates[j].title.en
+                  en_tmp.text = templates[j].body.en
+                  en_tmp.shortcut = 'shortcut' in templates[j] ? templates[j].shortcut.en : ''
+                  en_tmp.type = templates[j].type
+                  en_tmp.keyword = 'keyword' in templates[j] ? templates[j].keyword.en : ''
+                  en_tmp.subject = 'subject' in templates[j] ? templates[j].subject.en : ''
+                  en_tmp.attachments = 'attachments' in templates[j] ? templates[j].attachments.en : ''
+                  en_tmp.parent = ''
+
+                  subTexts.push({
+                    'fi' : fi_tmp,
+                    'en' : en_tmp
+                  });
+              }
+          }
+           
+        }
+        texts.push(subTexts)
+
+     }
+    
+    console.log("texts ", texts)
 
     if (group.length > 0 && texts.length > 0)
     {

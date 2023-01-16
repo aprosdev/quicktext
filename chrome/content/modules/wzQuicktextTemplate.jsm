@@ -12,6 +12,7 @@ function wzQuicktextTemplate() {
   this.mKeyword     = "";
   this.mSubject     = "";
   this.mAttachments = "";
+  this.mParentName  = "";
   this.mHeaders     = [];
 }
 
@@ -36,6 +37,9 @@ wzQuicktextTemplate.prototype = {
 ,
   get attachments() { return this.mAttachments; },
   set attachments(aAttachments) { if (typeof aAttachments != 'undefined') return this.mAttachments = aAttachments; }
+, 
+  get parentName() { return this.mParentName; },
+  set parentName(aParentName) { if (typeof aParentName != 'undefined') return this.mParentName = aParentName; }
 ,
   getHeader: function (aIndex)
   {
