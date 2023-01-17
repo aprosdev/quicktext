@@ -104,6 +104,7 @@ var quicktext = {
   updateGUI: function()
   {
     // Set the date/time in the variablemenu
+    var language = 'fi'
     var timeStamp = new Date();
     let fields = ["date-short", "date-long", "date-monthname", "time-noseconds", "time-seconds"];
     for (let i=0; i < fields.length; i++) {
@@ -161,7 +162,7 @@ var quicktext = {
           if (textLength == 1 && gQuicktext.collapseGroup)
           {
             toolbarbuttonGroup = toolbar.appendChild(t);
-            toolbarbuttonGroup.setAttribute("label", gQuicktext.getText(i, 0, false).name);
+            toolbarbuttonGroup.setAttribute("label", gQuicktext.getText(i, 0, false , language).name);
             toolbarbuttonGroup.setAttribute("i", i);
             toolbarbuttonGroup.setAttribute("j", 0);
             toolbarbuttonGroup.setAttribute("class", "customEventListenerForDynamicMenu");
@@ -170,13 +171,13 @@ var quicktext = {
           {
             t.setAttribute("type", "menu");
             toolbarbuttonGroup = toolbar.appendChild(t);
-            toolbarbuttonGroup.setAttribute("label", gQuicktext.getGroup(i, false).name);
+            toolbarbuttonGroup.setAttribute("label", gQuicktext.getGroup(i, false , language).name);
             var menupopup = toolbarbuttonGroup.appendChild(document.createXULElement("menupopup"));
 
             //add second level elements: all found texts of this group
             for (var j = 0; j < textLength; j++)
             {
-              var text = gQuicktext.getText(i, j, false);
+              var text = gQuicktext.getText(i, j, false , language);
 
               var toolbarbutton = document.createXULElement("menuitem");
               toolbarbutton.setAttribute("label", text.name);
@@ -199,7 +200,7 @@ var quicktext = {
           // Update the keyshortcuts
           for (var j = 0; j < textLength; j++)
           {
-            var text = gQuicktext.getText(i, j, false);
+            var text = gQuicktext.getText(i, j, false , language);
             var shortcut = text.shortcut;
             if (shortcut != "" && typeof this.mShortcuts[shortcut] == "undefined")
               this.mShortcuts[shortcut] = [i, j];
@@ -275,7 +276,7 @@ var quicktext = {
     let items = document.getElementsByClassName("customEventListenerForDynamicMenu");
     for (let i=0; i < items.length; i++)
     {
-      items[i].addEventListener("command", function() { quicktext.insertTemplate(this.getAttribute("i"), this.getAttribute("j"), true, true); }, true);
+      items[i].addEventListener("command", function() { quicktext.insertTemplate(this.getAttribute("i"), this.getAttribute("j"), true, true, language); }, true);
     }
 
     
@@ -325,7 +326,7 @@ var quicktext = {
     await this.insertBody("[["+ aVar +"]] ", 0, true);
   }
 ,
-  insertTemplate: async function(aGroupIndex, aTextIndex, aHandleTransaction = true, aFocusBody = false)
+  insertTemplate: async function(aGroupIndex, aTextIndex, aHandleTransaction = true, aFocusBody = false, language = 'en')
   {
     //store selected content
     var editor = GetCurrentEditor();
@@ -342,7 +343,7 @@ var quicktext = {
       this.mLastFocusedElement = document.activeElement;
       gQuicktextVar.cleanTagData();
 
-      var text = gQuicktext.getText(aGroupIndex, aTextIndex, false);
+      var text = gQuicktext.getText(aGroupIndex, aTextIndex, false, language);
       text.removeHeaders();
       gQuicktext.mCurrentTemplate = text;
 

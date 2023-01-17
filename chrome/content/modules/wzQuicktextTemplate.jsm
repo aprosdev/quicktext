@@ -9,10 +9,11 @@ function wzQuicktextTemplate() {
   this.mText        = "";
   this.mShortcut    = "";
   this.mType        = "";
+  this.mGroupType   = "";
   this.mKeyword     = "";
   this.mSubject     = "";
   this.mAttachments = "";
-  this.mParentName  = "";
+  this.mParent      = "";
   this.mHeaders     = [];
 }
 
@@ -29,6 +30,9 @@ wzQuicktextTemplate.prototype = {
   get type() { return this.mType; },
   set type(aType) { if (typeof aType != 'undefined') return this.mType = aType; }
 ,
+  get groupType() { return this.mGroupType; },
+  set groupType(aType) { if (typeof aType != 'undefined') return this.mGroupType = aType; }
+,
   get keyword() { return this.mKeyword; },
   set keyword(aKeyword) { if (typeof aKeyword != 'undefined') return this.mKeyword = aKeyword; }
 ,
@@ -38,8 +42,8 @@ wzQuicktextTemplate.prototype = {
   get attachments() { return this.mAttachments; },
   set attachments(aAttachments) { if (typeof aAttachments != 'undefined') return this.mAttachments = aAttachments; }
 , 
-  get parentName() { return this.mParentName; },
-  set parentName(aParentName) { if (typeof aParentName != 'undefined') return this.mParentName = aParentName; }
+  get parent() { return this.mParentName; },
+  set parent(aParentName) { if (typeof aParentName != 'undefined') return this.mParent = aParentName; }
 ,
   getHeader: function (aIndex)
   {

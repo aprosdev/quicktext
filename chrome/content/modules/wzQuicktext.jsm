@@ -293,17 +293,26 @@ var gQuicktext = {
     }
   }
 ,
-  getGroup: function(aGroupIndex, aEditingMode)
+  getGroup: function(aGroupIndex, aEditingMode, language='en')
   {
     if (aEditingMode)
     {
       if (typeof this.mEditingGroup[aGroupIndex] != 'undefined')
-        return this.mEditingGroup[aGroupIndex];
+      {
+        if(language === "en")
+          return this.mEditingGroup[aGroupIndex]['en'];
+        else
+          return this.mEditingGroup[aGroupIndex]['fi'];
+      }
+        
     }
     else
     {
       if (typeof this.mGroup[aGroupIndex] != 'undefined')
-        return this.mGroup[aGroupIndex];
+        if(language === 'en')
+          return this.mGroup[aGroupIndex]['en'];
+        else
+          return this.mGroup[aGroupIndex]['fi'];
     }
   }
 ,
@@ -369,17 +378,23 @@ var gQuicktext = {
       this.mTexts[aGroupIndex].splice(aRow, 1);
   }
 ,
-  getText: function(aGroupIndex, aTextIndex, aEditingMode)
+  getText: function(aGroupIndex, aTextIndex, aEditingMode , language = "en")
   {
     if (aEditingMode)
     {
       if (typeof this.mEditingTexts[aGroupIndex][aTextIndex] != 'undefined')
-        return this.mEditingTexts[aGroupIndex][aTextIndex];
+        if(language === 'en')
+          return this.mEditingTexts[aGroupIndex][aTextIndex]['en'];
+        else
+          return this.mEditingTexts[aGroupIndex][aTextIndex]['fi'];
     }
     else
     {
       if (typeof this.mTexts[aGroupIndex][aTextIndex] != 'undefined')
-        return this.mTexts[aGroupIndex][aTextIndex];
+        if(language === 'en')
+          return this.mTexts[aGroupIndex][aTextIndex]['en'];
+        else
+        return this.mTexts[aGroupIndex][aTextIndex]['fi'];
     }
   }
 ,
@@ -891,7 +906,8 @@ var gQuicktext = {
               fi_tmp.name = '--------------'
               fi_tmp.text = '--------------'
               fi_tmp.shortcut =  ''
-              fi_tmp.type = 'separator'
+              fi_tmp.groupType = 'separator'
+              fi_tmp.type = aType
               fi_tmp.keyword =  ''
               fi_tmp.subject =  ''
               fi_tmp.attachments = ''
@@ -900,7 +916,8 @@ var gQuicktext = {
               en_tmp.name = '--------------'
               en_tmp.text = '--------------'
               en_tmp.shortcut = ''
-              en_tmp.type = 'separator'
+              en_tmp.groupType = 'separator'
+              en_tmp.type = aType
               en_tmp.keyword =  ''
               en_tmp.subject =  ''
               en_tmp.attachments = ''
@@ -926,7 +943,8 @@ var gQuicktext = {
                   } 
                   fi_tmp.text = ''
                   fi_tmp.shortcut = ''
-                  fi_tmp.type = type
+                  fi_tmp.groupType = type
+                  fi_tmp.type = aType
                   fi_tmp.keyword = ''
                   fi_tmp.subject =  ''
                   fi_tmp.attachments = ''
@@ -934,7 +952,8 @@ var gQuicktext = {
 
                   en_tmp.text = ''
                   en_tmp.shortcut = ''
-                  en_tmp.type = type
+                  en_tmp.groupType = type
+                  en_tmp.type = aType
                   en_tmp.keyword = ''
                   en_tmp.subject =  ''
                   en_tmp.attachments = ''
@@ -971,14 +990,16 @@ var gQuicktext = {
                     }
 
                     sub_fi_tmp.shortcut = 'shortcut' in subTemplatesArray[k] ? subTemplatesArray[k].shortcut.fi : ''
-                    sub_fi_tmp.type = 'type' in subTemplatesArray[k] ? subTemplatesArray[k].type : ''
+                    sub_fi_tmp.groupType = 'type' in subTemplatesArray[k] ? subTemplatesArray[k].type : ''
+                    sub_fi_tmp.type = aType
                     sub_fi_tmp.keyword = 'keyword' in subTemplatesArray[k] ? subTemplatesArray[k].keyword.fi : ''
                     sub_fi_tmp.subject = 'subject' in subTemplatesArray[k] ? subTemplatesArray[k].subject.fi : ''
                     sub_fi_tmp.attachments = 'attachments' in subTemplatesArray[k] ? subTemplatesArray[k].attachments.fi : ''
                     sub_fi_tmp.parent = fi_tmp.name
 
                     sub_en_tmp.shortcut = 'shortcut' in subTemplatesArray[k] ? subTemplatesArray[k].shortcut.en : ''
-                    sub_en_tmp.type = 'type' in subTemplatesArray[k] ? subTemplatesArray[k].type : ''
+                    sub_en_tmp.groupType = 'type' in subTemplatesArray[k] ? subTemplatesArray[k].type : ''
+                    sub_en_tmp.type = aType
                     sub_en_tmp.keyword = 'keyword' in subTemplatesArray[k] ? subTemplatesArray[k].keyword.en : ''
                     sub_en_tmp.subject = 'subject' in subTemplatesArray[k] ? subTemplatesArray[k].subject.en : ''
                     sub_en_tmp.attachments = 'attachments' in subTemplatesArray[k] ? subTemplatesArray[k].attachments.en : ''
@@ -994,7 +1015,8 @@ var gQuicktext = {
                   fi_tmp.name = templates[j].title.fi
                   fi_tmp.text = templates[j].body.fi
                   fi_tmp.shortcut = 'shortcut' in templates[j] ? templates[j].shortcut.fi : ''
-                  fi_tmp.type = templates[j].type
+                  fi_tmp.groupType = templates[j].type
+                  fi_tmp.type = aType
                   fi_tmp.keyword = 'keyword' in templates[j] ? templates[j].keyword.fi : ''
                   fi_tmp.subject = 'subject' in templates[j] ? templates[j].subject.fi : ''
                   fi_tmp.attachments = 'attachments' in templates[j] ? templates[j].attachments.fi : ''
@@ -1003,7 +1025,8 @@ var gQuicktext = {
                   en_tmp.name = templates[j].title.en
                   en_tmp.text = templates[j].body.en
                   en_tmp.shortcut = 'shortcut' in templates[j] ? templates[j].shortcut.en : ''
-                  en_tmp.type = templates[j].type
+                  en_tmp.groupType = templates[j].type
+                  en_tmp.type = aType
                   en_tmp.keyword = 'keyword' in templates[j] ? templates[j].keyword.en : ''
                   en_tmp.subject = 'subject' in templates[j] ? templates[j].subject.en : ''
                   en_tmp.attachments = 'attachments' in templates[j] ? templates[j].attachments.en : ''
