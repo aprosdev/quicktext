@@ -202,7 +202,7 @@ var gQuicktext = {
     {
       this.mShortcutModifier = "alt";
     }
-    console.log("mDefaultImport in jsm ", this.mDefaultImport)
+    
     if (this.mDefaultImport)
     {
       var defaultImport = this.mDefaultImport.split(";");
@@ -990,7 +990,7 @@ var gQuicktext = {
                     }
 
                     sub_fi_tmp.shortcut = 'shortcut' in subTemplatesArray[k] ? subTemplatesArray[k].shortcut.fi : ''
-                    sub_fi_tmp.groupType = 'type' in subTemplatesArray[k] ? subTemplatesArray[k].type : ''
+                    sub_fi_tmp.groupType = 'sub-menu'
                     sub_fi_tmp.type = aType
                     sub_fi_tmp.keyword = 'keyword' in subTemplatesArray[k] ? subTemplatesArray[k].keyword.fi : ''
                     sub_fi_tmp.subject = 'subject' in subTemplatesArray[k] ? subTemplatesArray[k].subject.fi : ''
@@ -998,7 +998,7 @@ var gQuicktext = {
                     sub_fi_tmp.parent = fi_tmp.name
 
                     sub_en_tmp.shortcut = 'shortcut' in subTemplatesArray[k] ? subTemplatesArray[k].shortcut.en : ''
-                    sub_en_tmp.groupType = 'type' in subTemplatesArray[k] ? subTemplatesArray[k].type : ''
+                    sub_en_tmp.groupType = 'sub-menu'
                     sub_en_tmp.type = aType
                     sub_en_tmp.keyword = 'keyword' in subTemplatesArray[k] ? subTemplatesArray[k].keyword.en : ''
                     sub_en_tmp.subject = 'subject' in subTemplatesArray[k] ? subTemplatesArray[k].subject.en : ''
@@ -1044,7 +1044,6 @@ var gQuicktext = {
 
      }
     
-    console.log("texts ", texts)
 
     if (group.length > 0 && texts.length > 0)
     {
@@ -1079,8 +1078,6 @@ var gQuicktext = {
           this.mEditingTexts.push(texts[i]);
       }
     }
-    console.log("mGroup in Quicktext", this.mGroup)
-    console.log("mText in Quicktext", this.mTexts)
   }
 ,
   getTagValue: function(aElem, aTag)

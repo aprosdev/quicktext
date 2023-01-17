@@ -16,7 +16,10 @@ var quicktextStateListener = {
   SaveInFolderDone: function(folderURI) {}
 }
 
+var mLanguage = 'fi'
+
 var quicktext = {
+  
   mLoaded:                      false,
   mLastFocusedElement:          null,
   mShortcuts:                   {},
@@ -104,7 +107,6 @@ var quicktext = {
   updateGUI: function()
   {
     // Set the date/time in the variablemenu
-    var language = 'fi'
     var timeStamp = new Date();
     let fields = ["date-short", "date-long", "date-monthname", "time-noseconds", "time-seconds"];
     for (let i=0; i < fields.length; i++) {
@@ -123,13 +125,13 @@ var quicktext = {
     var toolbar = document.getElementById("quicktext-toolbar");
     if (toolbar != null)
     {
-
       //clear toolbar and store current "variables" and "other" menus (the two rightmost ones)
       var toolbarbuttonVar = null;
       var toolbarbuttonOther = null;
       var length = toolbar.children.length;
       for(var i = length-1; i >= 0; i--)
       {
+        
         var element = toolbar.children[i];
         switch(element.getAttribute("id"))
         {
@@ -143,12 +145,37 @@ var quicktext = {
         toolbar.removeChild(element);
       }
 
+      // add language selector
+      var languageSelector;
+      let btn = document.createXULElement("button");
+      btn.setAttribute('type', 'menu')
+      languageSelector = toolbar.appendChild(btn)
+      languageSelector.setAttribute('label', 'Language')
+      var menupopup = languageSelector.appendChild(document.createXULElement("menupopup"));
+
+      var fiButton = document.createXULElement("menuitem");
+      fiButton.setAttribute("label", 'FI');
+      fiButton.addEventListener('command', function(){
+            mLanguage = 'fi'; 
+            quicktext.updateGUI(); 
+      })
+      menupopup.appendChild(fiButton);
+ 
+      var enButton = document.createXULElement("menuitem");
+      enButton.setAttribute("label", 'EN');
+      enButton.addEventListener('command', function(){ 
+          mLanguage = 'en'; 
+          quicktext.updateGUI(); 
+       
+      })
+      menupopup.appendChild(enButton);
+
       //rebuild template groups (the leftmost entries)
       var groupLength = gQuicktext.getGroupLength(false);
       for (var i = 0; i < groupLength; i++)
       {
         var textLength = gQuicktext.getTextLength(i, false);
-        if (textLength)
+        if(textLength)
         {
           //Add first level element, this will be either a menu or a button (if only one text in this group)
           var toolbarbuttonGroup;
@@ -162,7 +189,7 @@ var quicktext = {
           if (textLength == 1 && gQuicktext.collapseGroup)
           {
             toolbarbuttonGroup = toolbar.appendChild(t);
-            toolbarbuttonGroup.setAttribute("label", gQuicktext.getText(i, 0, false , language).name);
+            toolbarbuttonGroup.setAttribute("label", gQuicktext.getText(i, 0, false , mLanguage).name);
             toolbarbuttonGroup.setAttribute("i", i);
             toolbarbuttonGroup.setAttribute("j", 0);
             toolbarbuttonGroup.setAttribute("class", "customEventListenerForDynamicMenu");
@@ -171,28 +198,68 @@ var quicktext = {
           {
             t.setAttribute("type", "menu");
             toolbarbuttonGroup = toolbar.appendChild(t);
-            toolbarbuttonGroup.setAttribute("label", gQuicktext.getGroup(i, false , language).name);
+            toolbarbuttonGroup.setAttribute("label", gQuicktext.getGroup(i, false , mLanguage).name);
             var menupopup = toolbarbuttonGroup.appendChild(document.createXULElement("menupopup"));
 
             //add second level elements: all found texts of this group
             for (var j = 0; j < textLength; j++)
             {
-              var text = gQuicktext.getText(i, j, false , language);
+              var text = gQuicktext.getText(i, j, false ,mLanguage);
+              if(text.groupType != 'group'){
+                var toolbarbutton = document.createXULElement("menuitem");
+                toolbarbutton.setAttribute("label", text.name);
+                toolbarbutton.setAttribute("i", i);
+                toolbarbutton.setAttribute("j", j);
+                toolbarbutton.setAttribute("class", "customEventListenerForDynamicMenu");
+  
+                var shortcut = text.shortcut;
+                if (shortcut > 0)
+                {
+                  if (shortcut == 10) shortcut = 0;
+                  toolbarbutton.setAttribute("acceltext", "Alt+" + shortcut);
+                }
+  
+                menupopup.appendChild(toolbarbutton);
+              }else{
+                // it's submenu
+                var subMenu = document.createXULElement('menu')
+                
+                subMenu.setAttribute('label', text.name)
+                var submenupopup = subMenu.appendChild(document.createXULElement("menupopup"));
+                var index = j + 1;
+                for(var k = index;  k < textLength ; k++){
+                  
+                  // creating sub menu items in sub menu
+                  var subtext = gQuicktext.getText(i, k, false ,mLanguage);
+                  if(subtext.groupType != "sub-menu"){
+                    j = k - 1
+                    break;
+                  }else{
+                    var submenuitem = document.createXULElement("menuitem");
+                    submenuitem.setAttribute("label", subtext.name);
+                    submenuitem.setAttribute("i", i);
+                    submenuitem.setAttribute("j", k);
+                    submenuitem.setAttribute("class", "customEventListenerForDynamicMenu");
+      
+                    var shortcut = subtext.shortcut;
+                    if (shortcut > 0)
+                    {
+                      if (shortcut == 10) shortcut = 0;
+                      submenuitem.setAttribute("acceltext", "Alt+" + shortcut);
+                    }
+  
+                    submenupopup.appendChild(submenuitem);
+                    if(k == textLength - 1){
+                      // submenu index is the end of the menu
+                      j = k
+                    }
+                  }
+                  
+                }
 
-              var toolbarbutton = document.createXULElement("menuitem");
-              toolbarbutton.setAttribute("label", text.name);
-              toolbarbutton.setAttribute("i", i);
-              toolbarbutton.setAttribute("j", j);
-              toolbarbutton.setAttribute("class", "customEventListenerForDynamicMenu");
-
-              var shortcut = text.shortcut;
-              if (shortcut > 0)
-              {
-                if (shortcut == 10) shortcut = 0;
-                toolbarbutton.setAttribute("acceltext", "Alt+" + shortcut);
+                menupopup.appendChild(subMenu);
               }
-
-              menupopup.appendChild(toolbarbutton);
+              
             }
           }
           toolbarbuttonGroup = null;
@@ -200,7 +267,7 @@ var quicktext = {
           // Update the keyshortcuts
           for (var j = 0; j < textLength; j++)
           {
-            var text = gQuicktext.getText(i, j, false , language);
+            var text = gQuicktext.getText(i, j, false , mLanguage);
             var shortcut = text.shortcut;
             if (shortcut != "" && typeof this.mShortcuts[shortcut] == "undefined")
               this.mShortcuts[shortcut] = [i, j];
@@ -219,64 +286,13 @@ var quicktext = {
       toolbar.appendChild(toolbarbuttonVar);
       toolbar.appendChild(toolbarbuttonOther);
 
-            
-      // Update the toolbar inside the toolbarpalette and the drop-down menu - if used
-      let optionalUI = ["button-quicktext", "quicktext-popup"];
-      for (let a=0; a < optionalUI.length; a++) { 
-        if (document.getElementById(optionalUI[a] + "-menupopup")) {
-          let rootElement = document.getElementById(optionalUI[a] + "-menupopup");
-          
-          //clear
-          let length = rootElement.children.length;
-          for (let i = length-1; i >= 0; i--)
-            rootElement.removeChild(rootElement.children[i]);
-
-          //rebuild via copy from the quicktext toolbar - loop over toolbarbuttons inside toolbar
-          for (let i = 0; i < toolbar.children.length; i++)
-          {
-            let menu = null;
-            let node = toolbar.children[i];
-            switch (node.nodeName)
-            {
-              case "button":
-              case "toolbarbutton":
-                // Check if the group is collapse or not
-                if (node.getAttribute("type") == "menu")
-                {
-                  menu = document.createXULElement("menu");
-                  menu.setAttribute("label", node.getAttribute("label"));
-                  
-                  let childs = node.querySelectorAll(":not(menu) > menupopup");                
-                  for (let child of childs) {
-                    menu.appendChild(child.cloneNode(true));
-                  }
-                }
-                else
-                {
-                  menu = document.createXULElement("menuitem");
-                  menu.setAttribute("label", node.getAttribute("label"));
-                  menu.setAttribute("i", node.getAttribute("i"));
-                  menu.setAttribute("j", node.getAttribute("j"));
-                  menu.setAttribute("class", "customEventListenerForDynamicMenu");
-                }
-                rootElement.appendChild(menu);
-                break;
-              case "spacer":
-                rootElement.appendChild(document.createXULElement("menuseparator"));
-                break;
-            }
-          }
-          
-        }
-      }
-      
     }
 
     //add event listeners
     let items = document.getElementsByClassName("customEventListenerForDynamicMenu");
     for (let i=0; i < items.length; i++)
     {
-      items[i].addEventListener("command", function() { quicktext.insertTemplate(this.getAttribute("i"), this.getAttribute("j"), true, true, language); }, true);
+      items[i].addEventListener("command", function() { quicktext.insertTemplate(this.getAttribute("i"), this.getAttribute("j"), true, true); }, true);
     }
 
     
@@ -326,7 +342,7 @@ var quicktext = {
     await this.insertBody("[["+ aVar +"]] ", 0, true);
   }
 ,
-  insertTemplate: async function(aGroupIndex, aTextIndex, aHandleTransaction = true, aFocusBody = false, language = 'en')
+  insertTemplate: async function(aGroupIndex, aTextIndex, aHandleTransaction = true, aFocusBody = false)
   {
     //store selected content
     var editor = GetCurrentEditor();
@@ -343,7 +359,7 @@ var quicktext = {
       this.mLastFocusedElement = document.activeElement;
       gQuicktextVar.cleanTagData();
 
-      var text = gQuicktext.getText(aGroupIndex, aTextIndex, false, language);
+      var text = gQuicktext.getText(aGroupIndex, aTextIndex, false, mLanguage);
       text.removeHeaders();
       gQuicktext.mCurrentTemplate = text;
 
